@@ -1,0 +1,88 @@
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+@model TranslationBureau.Web.ViewModels.TranslatorIndexViewModel
+@{
+    ViewData["Title"] = "Переводчики";
+    var filter = Model.Filter;
+}
+
+<h2>Переводчики</h2>
+
+<form asp-action="Index" method="get" class="row g-2 mb-3">
+    <div class="col-auto">
+        <select name="category" class="form-select"
+                asp-items="@(new SelectList(Model.Categories, filter.Category))">
+            <option value="">Все категории</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <select name="isActive" class="form-select">
+            <option value="">Все переводчики</option>
+            <option value="true" selected="@(filter.IsActive == true)">Работающие</option>
+            <option value="false" selected="@(filter.IsActive == false)">Архивные</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-primary">Применить</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Сбросить</a>
+    </div>
+    <div class="col-auto ms-auto">
+        <a asp-action="Create" class="btn btn-primary">Добавить переводчика</a>
+    </div>
+</form>
+
+<table class="table table-striped table-bordered">
+    <thead class="table-light">
+        <tr>
+            <th>
+                <a asp-action="Index"
+                   asp-route-sortOrder="@(filter.SortOrder == "name" ? "name_desc" : "name")"
+                   asp-route-category="@filter.Category"
+                   asp-route-isActive="@filter.IsActive">ФИО</a>
+            </th>
+            <th>Телефон</th>
+            <th>Электронная почта</th>
+            <th>Категория</th>
+            <th class="text-end">
+                <a asp-action="Index"
+                   asp-route-sortOrder="@(filter.SortOrder == "rate" ? "rate_desc" : "rate")"
+                   asp-route-category="@filter.Category"
+                   asp-route-isActive="@filter.IsActive">Ставка, руб.</a>
+            </th>
+            <th>Работает</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Translators.Items)
+        {
+            <tr>
+                <td>@item.FullName</td>
+                <td>@item.Phone</td>
+                <td>@item.Email</td>
+                <td>@item.Category</td>
+                <td class="text-end">@item.RatePerUnit.ToString("N2")</td>
+                <td>@(item.IsActive ? "да" : "нет")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Изменить</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<nav>
+    <ul class="pagination">
+        @for (var i = 1; i <= Model.Translators.TotalPages; i++)
+        {
+            <li class="page-item @(i == Model.Translators.PageIndex ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@i"
+                   asp-route-category="@filter.Category"
+                   asp-route-isActive="@filter.IsActive"
+                   asp-route-sortOrder="@filter.SortOrder">@i</a>
+            </li>
+        }
+    </ul>
+</nav>
+
+<p>Всего записей: @Model.Translators.TotalCount</p>

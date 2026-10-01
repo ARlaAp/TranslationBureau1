@@ -1,0 +1,25 @@
+﻿@model TranslationBureau.Application.DTOs.TranslatorDto
+@{
+    ViewData["Title"] = "Перевод записи в архивное состояние";
+}
+
+<h2>Перевод записи в архивное состояние</h2>
+
+<p>Подтвердите прекращение сотрудничества со следующим переводчиком.</p>
+
+<dl class="row col-md-6">
+    <dt class="col-sm-4">ФИО</dt>
+    <dd class="col-sm-8">@Model.FullName</dd>
+    <dt class="col-sm-4">Телефон</dt>
+    <dd class="col-sm-8">@Model.Phone</dd>
+    <dt class="col-sm-4">Категория</dt>
+    <dd class="col-sm-8">@Model.Category</dd>
+    <dt class="col-sm-4">Ставка, руб.</dt>
+    <dd class="col-sm-8">@Model.RatePerUnit.ToString("N2")</dd>
+</dl>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" name="id" value="@Model.Id" />
+    <button type="submit" class="btn btn-danger">Подтвердить</button>
+    <a asp-action="Index" class="btn btn-secondary">Отмена</a>
+</form>

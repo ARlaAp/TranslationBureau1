@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="TranslationBureau.Application/TranslationBureau.Application.csproj" />
+  <Project Path="TranslationBureau.Domain/TranslationBureau.Domain.csproj" />
+  <Project Path="TranslationBureau.Infrastructure/TranslationBureau.Infrastructure.csproj" />
+  <Project Path="TranslationBureau.Tests/TranslationBureau.Tests.csproj" />
+  <Project Path="TranslationBureau.Web/TranslationBureau.Web.csproj" />
+</Solution>
