@@ -1,0 +1,65 @@
+# Наименование конвейера, отображаемое в интерфейсе GitHub Actions
+name: Build, Test and Publish
+
+# События, при наступлении которых конвейер запускается
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:      # позволяет запускать конвейер вручную
+
+jobs:
+  build:
+    # Наименование задания формируется с указанием операционной системы
+    name: Сборка под управлением ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      # Отказ одного задания не прекращает выполнение остальных
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      # Шаг 1. Получение исходного кода из репозитория
+      - name: Получение исходного кода
+        uses: actions/checkout@v4
+
+      # Шаг 2. Установка пакета средств разработки .NET
+      - name: Установка .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      # Шаг 3. Кэширование пакетов NuGet для сокращения времени сборки
+      - name: Кэширование пакетов NuGet
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
+      # Шаг 4. Восстановление зависимостей решения
+      - name: Восстановление зависимостей
+        run: dotnet restore
+
+      # Шаг 5. Сборка решения в конфигурации Release
+      - name: Сборка решения
+        run: dotnet build --configuration Release --no-restore
+
+      # Шаг 6. Выполнение модульных тестов
+      - name: Выполнение модульных тестов
+        run: dotnet test --configuration Release --no-build --verbosity normal
+
+      # Шаг 7. Публикация Web-приложения
+      - name: Публикация приложения
+        run: dotnet publish TranslationBureau.Web --configuration Release --no-build --output ./publish
+
+      # Шаг 8. Сохранение результата публикации в качестве артефакта
+      - name: Сохранение артефакта сборки
+        uses: actions/upload-artifact@v4
+        with:
+          name: TranslationBureau-${{ matrix.os }}
+          path: ./publish/**
+          retention-days: 30
